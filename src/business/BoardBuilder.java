@@ -1,23 +1,22 @@
 package business;
 
-import java.awt.Color;
 import java.util.Vector;
 
 public class BoardBuilder {
 
 	private Square[][] squareSecondary;
-	private Vector<Vector<Square>> OpponentSquare;
+	private Vector<Vector<Square>> playerSquere;
 	private Board board;
 
 	public BoardBuilder() {
 		board = new Board();
 		squareSecondary = new Square[15][15];
-		OpponentSquare = new Vector<Vector<Square>>();
+		playerSquere = new Vector<Vector<Square>>();
 		createCleanBoard();
 
 	}
 	
-	public void setColorSquare(final int x, final int y, final char c){
+	public void setsquareSecondarySimbol(final int x, final int y, final char c){
 		squareSecondary[x][y].setFill(true);
 		squareSecondary[x][y].setSquareSimbol(c);
 	}
@@ -30,7 +29,7 @@ public class BoardBuilder {
 				squareSecondary[row][column] = new Square(row, column, '#', false, true);
 				temp.add(squareSecondary[row][column]);
 			}
-			OpponentSquare.add(temp);
+			playerSquere.add(temp);
 		}
 
 	}

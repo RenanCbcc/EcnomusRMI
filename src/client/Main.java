@@ -12,9 +12,9 @@ public class Main {
 		
 	public static void main(String[] args) throws MalformedURLException, RemoteException, NotBoundException {
 
-		String chatServerURL = "rmi://localhost/RMIServer";
-		ServerInterface chatServer = (ServerInterface) Naming.lookup(chatServerURL);
-		new Thread(new Client(args[0], chatServer)).start();
+		String serverURL = "rmi://localhost/RMIServer";
+		ServerInterface server = (ServerInterface) Naming.lookup(serverURL);
+		new Thread(new Client(args[0], server)).start();
 	}
 	
 	

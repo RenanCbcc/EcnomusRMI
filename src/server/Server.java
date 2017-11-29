@@ -1,10 +1,11 @@
 package server;
 
+import java.net.MalformedURLException;
+import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 
-import auxiliary.Packet;
 import interfaces.ClientInterface;
 import interfaces.ServerInterface;
 
@@ -19,21 +20,9 @@ public class Server extends UnicastRemoteObject implements ServerInterface {
 	}
 
 	@Override
-	public synchronized void registerClient(ClientInterface cc) {
-		clients.add(cc);
-
-	}
-
-	@Override
-	public synchronized void sendMessage(Packet message) throws RemoteException {
-
-		int i = 0;
-		while (i < clients.size()) {
-			if (!clients.get(i).equals(this)) {
-				clients.get(i++).receiveMessage(message);
-			}
-		}
-
+	public synchronized boolean registerClient(ClientInterface ci) {
+		clients.add(ci);
+		return true;
 	}
 
 	@Override
@@ -49,14 +38,18 @@ public class Server extends UnicastRemoteObject implements ServerInterface {
 	}
 
 	@Override
-	public void sendMessage(String origin, String message) throws RemoteException {
+	public void sendMessage(String origin, int x, int y, char c, String message) throws RemoteException {
 		int i = 0;
 		while (i < clients.size()) {
 			if (!clients.get(i).equals(this)) {
-				clients.get(i++).receiveMessage(origin,message);
+				clients.get(i++).receiveMessage(origin, x, y, c, message);
 			}
 		}
 	}
 
+	public static void main(String[] args) throws RemoteException, MalformedURLException {
+		Naming.rebind("RMIServer", new Server());
+		System.out.println("Listenig");
+	}
 
 }

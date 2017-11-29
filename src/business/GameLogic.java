@@ -2,6 +2,7 @@ package business;
 
 import java.rmi.RemoteException;
 
+import auxiliary.Packet;
 import components.Component;
 
 public class GameLogic {
@@ -29,27 +30,24 @@ public class GameLogic {
 	public boolean fire(int row, int column) throws RemoteException {
 		boolean response = false;
 
-		if (!(row > 15 || row < 0) && !(column > 15 || column < 0))
-		{
-			if(moves_sent < NUMBER_MOVES && responses_receiver == 0)
-			{
+		if (!(row > 15 || row < 0) && !(column > 15 || column < 0)) {
+			if (moves_sent < NUMBER_MOVES && responses_receiver == 0) {
 				if (!boardBuilder.getBoardSercondary()[row][column].isFill()) {
-						response = true;
-				}else {
+					response = true;
+				} else {
 					System.out.println("Move wasted");
-					response = false;
-			}
 
-			moves_sent++;
-			
-			}else{
-				System.out.println("It isnot you turn");
-					
+				}
+
+				moves_sent++;
+
+			} else {
+				System.out.println("It is not you turn");
+
 			}
 
 		} else {
 			System.out.println("Out of range");
-			response = false;
 
 		}
 
@@ -57,8 +55,8 @@ public class GameLogic {
 	}
 
 	// Receive from another player
-	public String manageCommand(int actionCommand, int x, int y) {
-		String result = "Error manageCommand";
+	public Packet manageCommand(int actionCommand, int x, int y) {
+		Packet result = null;
 
 		if (actionCommand == XY_SQUARE) {
 			increaseResponsePlay();
@@ -71,23 +69,21 @@ public class GameLogic {
 
 				if (boardBuilder.getBoard().verifyComponentsSubmerged()) {
 					if (boardBuilder.getBoard().verifyComponentKill(component)) {
-						// std::cout << "You sank :" + component->getName() <<
-						// std::endl;
-						result = "You sank :" + component.getName();
+
+						result = new Packet(x, y, 'X', "You sank :" + component.getName());
 					} else {
-						// std::cout << "You hit :" + component->getName() <<
-						// std::endl;
-						result = "You hit : " + component.getName();
+						result = new Packet(x, y, 'X', "You hit : " + component.getName());
+
 					}
 				} else {
-					// std::cout << "You lost the game. Search a new opponent."
-					// << std::endl;
-					result = "Game lost. Search a new opponent.";
+					result = new Packet(x, y, ' ', "Game lost. Search a new opponent.");
+
 				}
 
 			} else {
 				boardBuilder.getBoard().setSimbolSquare(x, y, ' ');
-				result = "Water";
+				result = new Packet(x, y, ' ', "Water");
+
 			}
 
 		}

@@ -12,7 +12,7 @@ import interfaces.ServerInterface;
 public class Client extends UnicastRemoteObject implements ClientInterface, Runnable {
 	int XY_SQUARE = 20;
 	private static final long serialVersionUID = 1L;
-	private ServerInterface chatserver;
+	private ServerInterface server;
 	private String name = null;
 	private GameLogic game;
 
@@ -20,19 +20,12 @@ public class Client extends UnicastRemoteObject implements ClientInterface, Runn
 		super();
 		this.game = new GameLogic();
 		this.name = name;
-		chatserver = server;
-		chatserver.registerClient(this);
+		this.server = server;
+		server.registerClient(this);
 	}
 
 	String getName() {
 		return name;
-	}
-
-	@Override
-	public void receiveMessage(Packet message) {
-		if (!message.getName().equals(name))
-			System.out.println(message);
-
 	}
 
 	@Override
@@ -46,10 +39,11 @@ public class Client extends UnicastRemoteObject implements ClientInterface, Runn
 
 			try {
 				if (game.fire(x, y)) {
-					chatserver.sendMessage(getName(), x, y);
+					fire(x, y);
 				}
 
 			} catch (RemoteException e) {
+				in.close();
 				System.out.println("Error " + e.getMessage());
 			}
 		}
@@ -59,21 +53,29 @@ public class Client extends UnicastRemoteObject implements ClientInterface, Runn
 	public void receiveMessage(String origin, int x, int y) throws RemoteException {
 		if (!origin.equals(name)) {
 			System.out.println();
-			String result = game.manageCommand(XY_SQUARE, x, y);
-			System.out.println("Author: " + origin + " coordenates: " + "[" + x + "]" + "," + "[" + y + "]");
+			Packet result = game.manageCommand(XY_SQUARE, x, y);
+			System.out.println("Author: " + origin + " , coordenates: " + "[" + x + "]" + "," + "[" + y + "]");
 			// Send the response back
-			chatserver.sendMessage(getName(), result);
+			server.sendMessage(getName(), result.getX(), result.getY(), result.getC(), result.getMessage());
 		}
 
 	}
 
 	@Override
-	public void receiveMessage(String origin, String message) throws RemoteException {
+	public void receiveMessage(String origin, int x, int y, char c, String message) throws RemoteException {
 		if (!origin.equals(name)) {
 			System.out.println();
+			game.boardBuilder.setsquareSecondarySimbol(x, y, c);
+			game.boardBuilder.printBoard();
 			System.out.println("origin: " + origin + " message: " + message);
-
+			
 		}
+
+	}
+
+	@Override
+	public void fire(int x, int y) throws RemoteException {
+		server.sendMessage(getName(), x, y);
 
 	}
 
